@@ -7,6 +7,7 @@ import { SessionKind } from "@metamask/mpc-client";
 
 import { WebSocketContext } from "../../websocket-provider";
 import { createGroupSession, GroupFormData } from "../../group-session";
+import { setSnackbar } from "../../store/snackbars";
 
 import { StepProps } from "./index";
 
@@ -62,16 +63,26 @@ export default function SetParameters(props: StepProps) {
         { parties, threshold: threshold - 1 },
       ];
 
-      // Create the remote server group and session and store
-      // the information in the redux state before proceeding to
-      // the next view
-      await createGroupSession(
-        SessionKind.KEYGEN,
-        formData,
-        websocket,
-        dispatch
-      );
-      next();
+      try {
+        // Create the remote server group and session and store
+        // the information in the redux state before proceeding to
+        // the next view
+        await createGroupSession(
+          SessionKind.KEYGEN,
+          formData,
+          websocket,
+          dispatch
+        );
+        next();
+      } catch (e) {
+        console.error(e);
+        dispatch(
+          setSnackbar({
+            message: e.message || "",
+            severity: "error",
+          })
+        );
+      }
     }
   };
 

@@ -61,22 +61,33 @@ function SessionConnect(props: SessionConnectProps) {
     // Delay a little so we don't get flicker when the connection
     // is very fast.
     setTimeout(async () => {
-      const [group, session] = await joinGroupSession(
-        SessionKind.SIGN,
-        groupId,
-        sessionId,
-        websocket
-      );
+      try {
+        const [group, session] = await joinGroupSession(
+          SessionKind.SIGN,
+          groupId,
+          sessionId,
+          websocket
+        );
 
-      setValue(session.value);
-      setLabel(group.label);
+        setValue(session.value);
+        setLabel(group.label);
 
-      setGroupSession([group, session]);
+        setGroupSession([group, session]);
 
-      dispatch(setGroup(group));
-      dispatch(setSession(session));
+        dispatch(setGroup(group));
+        dispatch(setSession(session));
 
-      setProgressVisible(false);
+        setProgressVisible(false);
+      } catch (e) {
+        console.error(e);
+        dispatch(
+          setSnackbar({
+            message: e.message || "",
+            severity: "error",
+          })
+        );
+      }
+
     }, 1000);
   }, []);
 

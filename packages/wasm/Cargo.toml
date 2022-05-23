@@ -28,10 +28,11 @@ package = "kzen-paillier"
 default-features = false
 
 [dependencies.multi-party-ecdsa]
-git = "https://github.com/ZenGo-X/multi-party-ecdsa"
-#branch = "master"
+#git = "https://github.com/ZenGo-X/multi-party-ecdsa"
+git = "https://github.com/tmpfs/multi-party-ecdsa"
+branch = "libsecp256k1-dev-dep"
 default-features = false
-rev = "c94065fbf37132dccc7955cf2627866e87c162bf"
+#rev = "c94065fbf37132dccc7955cf2627866e87c162bf"
 version = "*"
 
 [dev-dependencies]

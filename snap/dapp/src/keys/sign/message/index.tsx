@@ -17,6 +17,7 @@ import { createGroupSession, GroupFormData } from "../../../group-session";
 import NotFound from "../../../not-found";
 import PublicAddress from "../../../components/public-address";
 import { keysSelector, KeyShareGroup } from "../../../store/keys";
+import { setSnackbar } from '../../../store/snackbars';
 import {
   sessionSelector,
   setSignCandidate,
@@ -101,29 +102,39 @@ export default function SignMessage() {
 
     const signValue = { message, digest };
 
-    // Create the remote server group and session and store
-    // the information in the redux state before proceeding to
-    // the next view
-    await createGroupSession(
-      SessionKind.SIGN,
-      formData,
-      websocket,
-      dispatch,
-      selectedParty || items[0],
-      signValue
-    );
+    try {
+      // Create the remote server group and session and store
+      // the information in the redux state before proceeding to
+      // the next view
+      await createGroupSession(
+        SessionKind.SIGN,
+        formData,
+        websocket,
+        dispatch,
+        selectedParty || items[0],
+        signValue
+      );
 
-    // Store the sign candidate state
-    const signCandidate = {
-      address,
-      selectedParty: selectedParty || items[0],
-      value: signValue,
-      signingType: SigningType.MESSAGE,
-      creator: true,
-    };
-    dispatch(setSignCandidate(signCandidate));
+      // Store the sign candidate state
+      const signCandidate = {
+        address,
+        selectedParty: selectedParty || items[0],
+        value: signValue,
+        signingType: SigningType.MESSAGE,
+        creator: true,
+      };
+      dispatch(setSignCandidate(signCandidate));
 
-    handleNext();
+      handleNext();
+    } catch (e) {
+      console.error(e);
+      dispatch(
+        setSnackbar({
+          message: e.message || "",
+          severity: "error",
+        })
+      );
+    }
   };
 
   const stepProps = {

@@ -25,27 +25,38 @@ export default function Compute(props: StepProps) {
     // Delay a little so we don't get flicker when the connection
     // is very fast.
     setTimeout(async () => {
-      const [group, session] = await joinGroupSessionWithSignup(
-        SessionKind.KEYGEN,
-        groupId,
-        sessionId,
-        websocket,
-        dispatch
-      );
+      try {
+        const [group, session] = await joinGroupSessionWithSignup(
+          SessionKind.KEYGEN,
+          groupId,
+          sessionId,
+          websocket,
+          dispatch
+        );
 
-      setLabel(group.label);
+        setLabel(group.label);
 
-      setProgressMessage("Waiting for other participants...");
+        setProgressMessage("Waiting for other participants...");
 
-      // All parties signed up to key generation
-      websocket.once("sessionSignup", async (sessionId: string) => {
-        if (sessionId === session.uuid) {
-          console.log("Invited participant got session ready...");
-          next();
-        } else {
-          throw new Error("Session id is for another session");
-        }
-      });
+        // All parties signed up to key generation
+        websocket.once("sessionSignup", async (sessionId: string) => {
+          if (sessionId === session.uuid) {
+            console.log("Invited participant got session ready...");
+            next();
+          } else {
+            throw new Error("Session id is for another session");
+          }
+        });
+      } catch (e) {
+        console.error(e);
+        dispatch(
+          setSnackbar({
+            message: e.message || "",
+            severity: "error",
+          })
+        );
+      }
+
     }, 1000);
   }, []);
 
